@@ -1,0 +1,13 @@
+name: xSudo
+main: nao20010128nao\pvp\PluginMain
+version: 1.0.0
+api: [1.0.0]
+load: STARTUP
+author: nao20010128nao
+description: You can make a PvP server using this!
+website: https://github.com/nao20010128nao/My-PVP-Plugin
+permissions:
+ npvp.*:
+  children:
+   npvp.all:
+    description: ""
