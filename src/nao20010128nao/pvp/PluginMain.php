@@ -76,6 +76,7 @@ class PluginMain extends PluginBase implements Listener{
 					"banSecond"=>"{player}'s IP address:{ip}",
 					"badCheater"=>"YOU ARE A BAD CHEATER!",
 					"denyCommands"=>"This command has been disabled by admin.",
+					"whenDeath"=>"You are died, so added 1 on your deaths.",
 					),
 				"joinMessages"=>array(
 					"Welcome to the server!",
@@ -228,6 +229,19 @@ class PluginMain extends PluginBase implements Listener{
 	public function onPlayerDeath(PlayerDeathEvent $event){
 		$player = $event->getPlayer();
 		$username = $player->getName();
-		
+		$event->setKeepInventory(true);
+		$player->sendMessage($this->system["messages"]["whenDeath"]);
+		$this->prepareStat($username);
+		$this->stats[mb_strtolower($username)]["death"]=$this->stats[mb_strtolower($username)]["death"]+1;
+	}
+	private function prepareStat($name){
+		if(!array_key_exists($this->stats,mb_strtolower($name))){
+			$this->stats=array_merge($this->stats,array(mb_strtolower($name)=>array(
+				"death"=>0,
+				"kill"=>0,
+				"level"=>0,
+				"exp"=>0,
+				)));
+		}
 	}
 }
