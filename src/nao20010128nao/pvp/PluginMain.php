@@ -21,6 +21,10 @@ use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\player\PlayerDeathEvent;
 
+use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\entity\EntityDamageByBlockEvent;
+
 use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\block\BlockBreakEvent;
 
@@ -69,6 +73,7 @@ class PluginMain extends PluginBase implements Listener{
 				"moneyUnit"=>"GM",
 				"messages"=>array(
 					"turnedOnPvP"=>"You have turned on PvP mode!",
+					"reportTeam"=>"You are {team}!",
 					"teleporting"=>"Teleporting...",
 					"fastChat"=>"Slow down, your chat is so fast!",
 					"cheat"=>"DO NOT USE CHEAT! YOU WILL BE BANNED IF YOU DO IT THREE TIMES!",
@@ -86,10 +91,10 @@ class PluginMain extends PluginBase implements Listener{
 					"so don't use cheat!",
 					),
 				"teamName"=>array(
-					"RED",
-					"GREEN",
-					"BLUE",
-					"YELLOW",
+					TextFormat::RED."RED".TextFormat::RESET,
+					TextFormat::GREEN."GREEN".TextFormat::RESET,
+					TextFormat::BLUE."BLUE".TextFormat::RESET,
+					TextFormat::YELLOW."YELLOW".TextFormat::RESET,
 					),
 				"denyCommands"=>array(
 					"op",
@@ -233,6 +238,23 @@ class PluginMain extends PluginBase implements Listener{
 		$player->sendMessage($this->system["messages"]["whenDeath"]);
 		$this->prepareStat($username);
 		$this->stats[mb_strtolower($username)]["death"]=$this->stats[mb_strtolower($username)]["death"]+1;
+	}
+	public function onPlayerDamageBlock(EntityDamageByBlockEvent $event){
+		$event->setCancelled(true);
+	}
+	public function onPlayerDamagePlayer(EntityDamageByEntityEvent $event){
+		switch($event->getCause()){
+		case EntityDamageEvent::CAUSE_FIRE:
+		case EntityDamageEvent::CAUSE_FALL:
+		case EntityDamageEvent::CAUSE_FIRE_TICK:
+		case EntityDamageEvent::CAUSE_LAVA:
+		case EntityDamageEvent::CAUSE_FIRE:
+		case EntityDamageEvent::CAUSE_BLOCK_EXPLOSION:
+		case EntityDamageEvent::CAUSE_ENTITY_EXPLOSION:
+			$event->setCancelled(true);
+			return;
+		default:
+		}
 	}
 	private function prepareStat($name){
 		if(!array_key_exists($this->stats,mb_strtolower($name))){
