@@ -18,6 +18,8 @@ use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\player\PlayerCommandPreprocessEvent;
 use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\event\player\PlayerMoveEvent;
+use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\event\player\PlayerDeathEvent;
 
 use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\block\BlockBreakEvent;
@@ -216,5 +218,16 @@ class PluginMain extends PluginBase implements Listener{
 			}
 		}
 		$sender->getServer()->blockAddress($ip, -1);
+	}
+	public function onPlayerQuit(PlayerQuitEvent $event){
+		$player = $event->getPlayer();
+		$username = $player->getName();
+		//remove player info from teamInfo
+		$teamInfo=array_diff_key($teamInfo,$username);
+	}
+	public function onPlayerDeath(PlayerDeathEvent $event){
+		$player = $event->getPlayer();
+		$username = $player->getName();
+		
 	}
 }
