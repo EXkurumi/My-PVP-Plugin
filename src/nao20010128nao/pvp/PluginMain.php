@@ -30,12 +30,14 @@ class PluginMain extends PluginBase implements Listener{
 	private $teamInfo;
 	private $judge;
 	private $stats;
+	private $chatTime;
 	public function onEnable(){
 		$this->csender=new ConsoleCommandSender();
 		$this->csender->sendMessage(TextFormat::GREEN."Loading...");
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 		$this->judge=new BannableWordsDetector($this->getFile()."/resources/bannableWords");
 		$this->teamInfo=array();
+		$this->chatTime=array();
 		if(!file_exists($this->getDataFolder())){
 			mkdir($this->getDataFolder(),755);
 		}
@@ -61,12 +63,16 @@ class PluginMain extends PluginBase implements Listener{
 				"antiCheat"=>true,
 				"acceptCheatTime"=>3,//仏の顔も三度まで(The Buddha allows bad doing for third time.)
 				"blockFasterChat"=>true,
+				"blockFasterChatToreshold"=>100,//ミリ秒(milliseconds)
 				"moneyUnit"=>"GM",
 				"messages"=>array(
 					"turnedOnPvP"=>"You have turned on PvP mode!",
 					"teleporting"=>"Teleporting...",
 					"fastChat"=>"Slow down, your chat is so fast!",
 					"cheat"=>"DO NOT USE CHEAT! YOU WILL BE BANNED IF YOU DO IT THREE TIMES!",
+					"banFirst"=>"{player} was banned because he/she used cheat {times} times.",
+					"banSecond"=>"{player}'s IP address:{ip}",
+					"badCheater"=>"YOU ARE A BAD CHEATER!",
 					),
 				"joinMessages"=>array(
 					"Welcome to the server!",
@@ -154,12 +160,55 @@ class PluginMain extends PluginBase implements Listener{
 		$player = $event->getPlayer();
 		$username = $player->getName();
 		if($this->system["antiCheat"]){
-			
+			if($this->judge->test($event->getMessage())){
+				$event->setCancelled(true);
+				if(!array_key_exists($this->cheaters,mb_strtolower($username))){
+					$this->cheaters=array_merge($this->cheaters,array(mb_strtolower($username)=>0));
+				}
+				$this->cheaters[mb_strtolower($username)]=$this->cheaters[mb_strtolower($username)]+1;
+				if($this->cheaters[mb_strtolower($username)]>=$this->system["acceptCheatTime"]){
+					//Do IPBAN and BAN!!! PUNISH FOR CHEATERS!!!
+					$this->processIPBan($player->getAddress(),$player,TextFormat::RED.$this->system["messages"]["badCheater"]);
+					$player->setBanned(true);
+					$str=$this->system["messages"]["banFirst"];
+					$str=str_replace("{player}",$username,$str);
+					$str=str_replace("{times}",$this->system["acceptCheatTime"],$str);
+					$this->csender->sendMessage(TextFormat::RED.$str);
+					
+					$str=$this->system["messages"]["banSecond"];
+					$str=str_replace("{player}",$username,$str);
+					$str=str_replace("{ip}",$player->getAddress(),$str);
+					$this->csender->sendMessage(TextFormat::RED.$this->system["messages"]["banSecond"]);
+					return;
+				}
+				$player->sendMessage(TextFormat::RED.$this->system["messages"]["cheat"]);
+			}
+		}
+		if($this->system["blockFasterChat"]){
+			$time=microtime()/1000;
+			if(!array_key_exists($this->chatTime,mb_strtolower($username))){
+				$this->chatTime=array_merge($this->chatTime,array(mb_strtolower($username)=>$time));
+			}else{
+				$last=$this->chatTime[mb_strtolower($username)];
+				if(($time-$last)<=$this->system["blockFasterChatToreshold"]){
+					$event->setCancelled(true);
+					$player->sendMessage($this->system["messages"]["fastChat"]);
+				}
+			}
 		}
 	}
 	public function onPlayerMove(PlayerMoveEvent $event){
 		$player = $event->getPlayer();
 		$username = $player->getName();
 		
+	}
+	private function processIPBan($ip, CommandSender $sender,$mes="IP banned."){
+		$sender->getServer()->getIPBans()->addBan($ip, "", null, $sender->getName());
+		foreach($sender->getServer()->getOnlinePlayers() as $player){
+			if($player->getAddress() === $ip){
+				$player->kick($mes);
+			}
+		}
+		$sender->getServer()->blockAddress($ip, -1);
 	}
 }
