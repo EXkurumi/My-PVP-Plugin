@@ -1,0 +1,30 @@
+\ the list of bannable words
+\ how to write:
+\ \=comment this line will be ignored.
+\ /=startsWith the bannable word ends with this.
+\ |=endsWith the bannable word ends with this.
+\ -=contains the bannable word contains this.
+\ the blank line will be ignored.
+
+/.g 
+/.ah 
+/.h 
+/.sp 
+/.k 
+/.l 
+/.i 
+/.c 
+/.ik 
+/.lo 
+/.tp 
+/.he 
+/.ss 
+/.cp 
+/.in 
+/.fl 
+/.go 
+/.a 
+/.d 
+/.gm 
+/.cl 
+/.ig 

@@ -28,10 +28,14 @@ class PluginMain extends PluginBase implements Listener{
 	private $cheaters;
 	private $money;
 	private $teamInfo;
+	private $judge;
+	private $stats;
 	public function onEnable(){
 		$this->csender=new ConsoleCommandSender();
 		$this->csender->sendMessage(TextFormat::GREEN."Loading...");
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
+		$this->judge=new BannableWordsDetector($this->getFile()."/resources/bannableWords");
+		$this->teamInfo=array();
 		if(!file_exists($this->getDataFolder())){
 			mkdir($this->getDataFolder(),755);
 		}
@@ -40,7 +44,7 @@ class PluginMain extends PluginBase implements Listener{
 			$this->csender->sendMessage(TextFormat::RED."system.yml not found!");
 			$this->csender->sendMessage(TextFormat::RED."Creating template...");
 			$temp=array(
-				"pvpBlock"=>array(
+				"pvpStartBlock"=>array(
 					array("x"=>0,"y"=>0,"z"=>0),
 					array("x"=>0,"y"=>0,"z"=>0),
 					array("x"=>0,"y"=>0,"z"=>0),
@@ -49,12 +53,10 @@ class PluginMain extends PluginBase implements Listener{
 					array("x"=>0,"y"=>0,"z"=>0),
 					),
 				"pvpTeleportTo"=>array(
-					array("x"=>0,"y"=>0,"z"=>0),
-					array("x"=>0,"y"=>0,"z"=>0),
-					array("x"=>0,"y"=>0,"z"=>0),
-					array("x"=>0,"y"=>0,"z"=>0),
-					array("x"=>0,"y"=>0,"z"=>0),
-					array("x"=>0,"y"=>0,"z"=>0),
+					"RED"=>array("x"=>0,"y"=>0,"z"=>0),
+					"GREEN"=>array("x"=>0,"y"=>0,"z"=>0),
+					"BLUE"=>array("x"=>0,"y"=>0,"z"=>0),
+					"YELLOW"=>array("x"=>0,"y"=>0,"z"=>0),
 					),
 				"antiCheat"=>true,
 				"acceptCheatTime"=>3,//仏の顔も三度まで(The Buddha allows bad doing for third time.)
@@ -84,10 +86,6 @@ class PluginMain extends PluginBase implements Listener{
 					"stop",
 					"deop",
 					"whitelist",
-					"ban",
-					"pardon",
-					"ban-ip",
-					"pardon-ip",
 					),
 				);
 			yaml_emit_file($this->getDataFolder()."system.yml",$this->system);
@@ -109,6 +107,12 @@ class PluginMain extends PluginBase implements Listener{
 		}else{
 			$this->money=array();
 		}
+		$this->csender->sendMessage(TextFormat::GREEN."Loading stats.yml...");
+		if(file_exists($this->getDataFolder()."stats.yml")){
+			$this->stats=yaml_parse_file($this->getDataFolder()."stats.yml");
+		}else{
+			$this->stats=array();
+		}
 		$this->csender->sendMessage(TextFormat::GREEN."Done! Continuing enabling next plugins...");
 	}
 	
@@ -116,6 +120,7 @@ class PluginMain extends PluginBase implements Listener{
 		yaml_emit_file($this->getDataFolder()."system.yml",$this->system);
 		yaml_emit_file($this->getDataFolder()."cheaters.yml",$this->cheaters);
 		yaml_emit_file($this->getDataFolder()."money.yml",$this->money);
+		yaml_emit_file($this->getDataFolder()."stats.yml",$this->stats);
 	}
 	
 	public function onBlockPlace(BlockPlaceEvent $event){
@@ -131,7 +136,10 @@ class PluginMain extends PluginBase implements Listener{
 		}
 	}
 	public function onPlayerJoin(PlayerJoinEvent $event){
-		
+		$send=$event->getPlayer();
+		foreach($this->system["joinMessages"] as $mes){
+			$send->sendMessage($mes);
+		}
 	}
 	public function onCommandEvent(PlayerCommandPreprocessEvent $event){
 		$player = $event->getPlayer();
@@ -145,7 +153,9 @@ class PluginMain extends PluginBase implements Listener{
 	public function onPlayerChat(PlayerChatEvent $event){
 		$player = $event->getPlayer();
 		$username = $player->getName();
-		
+		if($this->system["antiCheat"]){
+			
+		}
 	}
 	public function onPlayerMove(PlayerMoveEvent $event){
 		$player = $event->getPlayer();
