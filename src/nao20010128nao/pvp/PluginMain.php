@@ -73,6 +73,7 @@ class PluginMain extends PluginBase implements Listener{
 					"banFirst"=>"{player} was banned because he/she used cheat {times} times.",
 					"banSecond"=>"{player}'s IP address:{ip}",
 					"badCheater"=>"YOU ARE A BAD CHEATER!",
+					"denyCommands"=>"This command has been disabled by admin.",
 					),
 				"joinMessages"=>array(
 					"Welcome to the server!",
@@ -154,7 +155,12 @@ class PluginMain extends PluginBase implements Listener{
 		if($text[0]!=="/"){
 			return null;
 		}
-		
+		$cmdBody=explode(" ",substr($text,1))[0];
+		$tmp=array_diff($this->system["denyCommands"],array($cmdBody));
+		if(count($tmp)!=count($this->system["denyCommands"])){
+			$event->setCancelled(true);
+			$player->sendMessage($this->system["messages"]["denyCommands"]);
+		}
 	}
 	public function onPlayerChat(PlayerChatEvent $event){
 		$player = $event->getPlayer();
