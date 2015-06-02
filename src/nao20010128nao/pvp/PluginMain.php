@@ -68,9 +68,13 @@ class PluginMain extends PluginBase implements Listener{
 					),
 				"antiCheat"=>true,
 				"acceptCheatTime"=>3,//仏の顔も三度まで(The Buddha allows bad doing for third time.)
+				"disallowTeamFire"=>true,
 				"blockFasterChat"=>true,
 				"blockFasterChatToreshold"=>100,//ミリ秒(milliseconds)
 				"moneyUnit"=>"GM",
+				"moneyAdd"=>100,
+				"expUnit"=>"exp",
+				"expAdd"=>20,
 				"messages"=>array(
 					"turnedOnPvP"=>"You have turned on PvP mode!",
 					"reportTeam"=>"You are {team}!",
@@ -81,7 +85,11 @@ class PluginMain extends PluginBase implements Listener{
 					"banSecond"=>"{player}'s IP address:{ip}",
 					"badCheater"=>"YOU ARE A BAD CHEATER!",
 					"denyCommands"=>"This command has been disabled by admin.",
-					"whenDeath"=>"You are died, so added 1 on your deaths.",
+					"whenDeath"=>"You are killed by {killer}. Added one on your deaths.",
+					"whenKill"=>"You killed {player}. Added one on your kills.",
+					"notInTeam"=>"You are not in the team! Turn on the PvP mode, and join the team!",
+					"targetNotInTeam"=>"The target is not in the team! Your attack was cancelled.",
+					"teamFire"=>"Team Fire is now allowed! Don't worry, this damage was cancelled, and not counted as a spam!",
 					),
 				"joinMessages"=>array(
 					"Welcome to the server!",
@@ -91,6 +99,12 @@ class PluginMain extends PluginBase implements Listener{
 					"so don't use cheat!",
 					),
 				"teamName"=>array(
+					"RED",
+					"GREEN",
+					"BLUE",
+					"YELLOW",
+					),
+				"teamShowName"=>array(
 					TextFormat::RED."RED".TextFormat::RESET,
 					TextFormat::GREEN."GREEN".TextFormat::RESET,
 					TextFormat::BLUE."BLUE".TextFormat::RESET,
@@ -101,6 +115,19 @@ class PluginMain extends PluginBase implements Listener{
 					"stop",
 					"deop",
 					"whitelist",
+					),
+				"style"=>array(
+					"impl"=>"nao20010128nao\\pvp\\impl\\CoreAttack",
+					"options"=>array(
+							"RED"=>array("x"=>0,"y"=>0,"z"=>0),
+							"GREEN"=>array("x"=>0,"y"=>0,"z"=>0),
+							"BLUE"=>array("x"=>0,"y"=>0,"z"=>0),
+							"YELLOW"=>array("x"=>0,"y"=>0,"z"=>0),
+						),
+					),
+				"expCalc"=>array(
+					"baseValue"=>100,
+					"levelAdd"=>10,
 					),
 				);
 			yaml_emit_file($this->getDataFolder()."system.yml",$this->system);
@@ -235,9 +262,23 @@ class PluginMain extends PluginBase implements Listener{
 		$player = $event->getPlayer();
 		$username = $player->getName();
 		$event->setKeepInventory(true);
-		$player->sendMessage($this->system["messages"]["whenDeath"]);
-		$this->prepareStat($username);
-		$this->stats[mb_strtolower($username)]["death"]=$this->stats[mb_strtolower($username)]["death"]+1;
+		
+	}
+	public function onPlayerDeath2(EntityDeathEvent $event){
+		$entity = $event->getEntity();
+        $cause = $entity->getLastDamageCause();
+        $killer = $cause->getDamager();
+        if($killer instanceof Player){
+            $killer->sendMessage(str_replace(array("{player}"),array($entity->getName()),$this->system["messages"]["whenKill"]));
+			$entity->sendMessage(str_replace(array("{killer}"),array($killer->getName()),$this->system["messages"]["whenDeath"]));
+			$this->prepareStat($entity->getName());
+			$this->prepareStat($killer->getName());
+			$username=mb_strtolower($entity->getName());
+			$entity->stats[$username]["death"]=$this->stats[$username]["death"]+1;
+			$username=mb_strtolower($killer->getName());
+			$entity->stats[$username]["kill"]=$this->stats[$username]["kill"]+1;
+			$entity->stats[$username]["money"]=$this->stats[$username]["money"]+$this->system["moneyAdd"];
+        }
 	}
 	public function onPlayerDamageBlock(EntityDamageByBlockEvent $event){
 		$event->setCancelled(true);
@@ -254,7 +295,35 @@ class PluginMain extends PluginBase implements Listener{
 			$event->setCancelled(true);
 			return;
 		default:
+			$dmg=$event->getDamager();
+			$ent=$event->getEntity();
+			if(!(($dmg instanceof Player)and($ent instanceof Player))){
+				return;
+			}
+			$dmgIntNam=mb_strtolower($dmg->getName());
+			$entIntNam=mb_strtolower($ent->getName());
+			//Is the damager in team?
+			if(!array_key_exists($this->teamInfo,$dmgIntNam)){
+				$dmg->sendMessage($this->system["messages"]["notInTeam"]);
+				$event->setCancelled(true);
+				return;
+			}
+			//Is the damaged in team?
+			if(!array_key_exists($this->teamInfo,$entIntNam)){
+				$dmg->sendMessage($this->system["messages"]["targetNotInTeam"]);
+				$event->setCancelled(true);
+				return;
+			}
+			//Did the damager team-fired?
+			if($this->teamInfo[$dmgIntNam]==$this->teamInfo[$entIntNam] and $this->system["disallowTeamFire"]){
+				$dmg->sendMessage($this->system["messages"]["teamFire"]);
+				$event->setCancelled(true);
+				return;
+			}
 		}
+	}
+	private function processGiveExp($player,$amount=-1){
+		
 	}
 	private function prepareStat($name){
 		if(!array_key_exists($this->stats,mb_strtolower($name))){
