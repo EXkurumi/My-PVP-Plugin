@@ -323,7 +323,24 @@ class PluginMain extends PluginBase implements Listener{
 		}
 	}
 	private function processGiveExp($player,$amount=-1){
-		
+		if($amount<=0){
+			$amount=$this->system["expAdd"];
+		}
+		$player=mb_strtolower($player);
+		$this->prepareStat($player);
+		$maxExp=$this->system["calcExp"]["baseValue"]+$this->system["calcExp"]["levelAdd"]*$this->stats[$player]["level"];
+		$calcExp=$this->stats[$player]["exp"]+$amount;
+		if($maxExp>$calcExp){
+			$this->stats[$player]["exp"]=$calcExp;
+			return 0;
+		}elseif($maxExp==$calcExp){
+			$this->stats[$player]["level"]=$this->stats[$player]["level"]+1;
+			$this->stats[$player]["exp"]=0;
+			return 1;
+		}elseif($maxExp<=$calcExp){
+			$give=$maxExp-$calcExp;
+			return $this->processGiveExp($player,$give)+1;
+		}
 	}
 	private function prepareStat($name){
 		if(!array_key_exists($this->stats,mb_strtolower($name))){
