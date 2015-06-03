@@ -382,6 +382,9 @@ class PluginMain extends PluginBase implements Listener{
 			$player=$player->getName();
 		}
 		$player=mb_strtolower($player);
+		if(!array_key_exists($this->system["teamShowName"],$team)){
+			return false;
+		}
 		if(array_key_exists($this->teamInfo,$player)){
 			return false;
 		}
@@ -390,5 +393,8 @@ class PluginMain extends PluginBase implements Listener{
 		$tpTo=$this->system["pvpTeleportTo"][$team];
 		$player->teleport(new Vector3($tpTo["x"],$tpTo["y"],$tpTo["z"]));
 		return true;
+	}
+	private function turnOnPvP($player){
+		return $this->joinTeam($player,$this->selectTeam());
 	}
 }
