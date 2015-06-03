@@ -337,6 +337,7 @@ class PluginMain extends PluginBase implements Listener{
 			return 1;
 		}elseif($maxExp<=$calcExp){
 			$give=$maxExp-$calcExp;
+			$this->stats[$player]["level"]=$this->stats[$player]["level"]+1;
 			return $this->processGiveExp($player,$give)+1;
 		}
 	}
