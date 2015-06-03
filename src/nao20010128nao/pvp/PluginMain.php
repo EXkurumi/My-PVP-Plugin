@@ -37,6 +37,7 @@ class PluginMain extends PluginBase implements Listener{
 	private $judge;
 	public $stats;
 	private $chatTime;
+	private $battleImpl;
 	public function onEnable(){
 		$this->csender=new ConsoleCommandSender();
 		$this->csender->sendMessage(TextFormat::GREEN."Loading...");
@@ -165,6 +166,9 @@ class PluginMain extends PluginBase implements Listener{
 		}else{
 			$this->stats=array();
 		}
+		$this->csender->sendMessage(TextFormat::GREEN."Preparing some...");
+		$battleClass=$this->system["style"]["impl"];
+		$this->battleImpl=new $battleClass($this->system["style"]["options"],$this,$this->server);
 		$this->csender->sendMessage(TextFormat::GREEN."Done! Continuing enabling next plugins...");
 	}
 	
