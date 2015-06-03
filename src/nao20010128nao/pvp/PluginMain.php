@@ -363,11 +363,17 @@ class PluginMain extends PluginBase implements Listener{
 		}
 		$miniestTeam=false;
 		$miniestTeamCount=count($this->server->getOnlinePlayers());
+		$noMemberTeam=array_combine($this->system["teamName"],$this->system["teamName"]);
 		foreach($teamPlayersCount as $team=>$count){
 			if($miniestTeamCount>=$count){
 				$miniestTeamCount=$count;
 				$miniestTeam=$team;
 			}
+			$noMemberTeam=array_diff_key($noMemberTeam,array($team=>0));
+		}
+		$noMemberTeam=array_keys($noMemberTeam);
+		if(count($noMemberTeam)!=0){
+			$miniestTeam=$noMemberTeam[0];
 		}
 		return $miniestTeam;
 	}
