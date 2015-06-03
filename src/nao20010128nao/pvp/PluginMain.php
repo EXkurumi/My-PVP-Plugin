@@ -9,6 +9,8 @@ use pocketmine\command\PluginIdentifiableCommand;
 
 use pocketmine\Player;
 
+use pocketmine\math\Vector3;
+
 use pocketmine\utils\TextFormat;
 
 use pocketmine\event\Listener;
@@ -350,5 +352,37 @@ class PluginMain extends PluginBase implements Listener{
 				"exp"=>0,
 				)));
 		}
+	}
+	private function selectTeam(){
+		$teamPlayersCount=array();
+		foreach($this->teamInfo as $a=>$team){
+			if(!array_key_exists($teamPlayersCount,$team)){
+				$teamPlayersCount=array_merge($teamPlayersCount,array($team=>0));
+			}
+			$teamPlayersCount[$team]=$teamPlayersCount[$team]+1;
+		}
+		$miniestTeam=false;
+		$miniestTeamCount=count($this->server->getOnlinePlayers());
+		foreach($teamPlayersCount as $team=>$count){
+			if($miniestTeamCount>=$count){
+				$miniestTeamCount=$count;
+				$miniestTeam=$team;
+			}
+		}
+		return $miniestTeam;
+	}
+	private function joinTeam($player,$team){
+		if($player instanceof Player){
+			$player=$player->getName();
+		}
+		$player=mb_strtolower($player);
+		if(array_key_exists($this->teamInfo,$player)){
+			return false;
+		}
+		$this->teamInfo=array_merge($this->teamInfo,array($player=>$team));
+		$player=$this->server->getPlayer($player);
+		$tpTo=$this->system["pvpTeleportTo"][$team];
+		$player->teleport(new Vector3($tpTo["x"],$tpTo["y"],$tpTo["z"]));
+		return true;
 	}
 }
