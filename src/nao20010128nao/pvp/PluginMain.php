@@ -89,9 +89,14 @@ class PluginMain extends PluginBase implements Listener{
 					"whenKill"=>"You killed {player}. Added one on your kills.",
 					"notInTeam"=>"You are not in the team! Turn on the PvP mode, and join the team!",
 					"targetNotInTeam"=>"The target is not in the team! Your attack was cancelled.",
+					"yourCore"=>"The core is your team's core! Please protect it!",
 					"teamFire"=>"Team Fire is now allowed! Don't worry, this damage was cancelled, and not counted as a spam!",
 					"gotExp"=>"You got {exp} exp!",
 					"levUp"=>"Your level is now {level}!",
+					"coreUnderAttack"=>"Your core is under attack!",
+					"coreEliminated"=>"Your core has been eliminated!",
+					"coreEliminated2"=>"{team}'s core has been eliminated!",
+					"kickAll"=>"Kicking all players from the battle...",
 					),
 				"joinMessages"=>array(
 					"Welcome to the server!",
@@ -107,10 +112,10 @@ class PluginMain extends PluginBase implements Listener{
 					"YELLOW",
 					),
 				"teamShowName"=>array(
-					TextFormat::RED."RED".TextFormat::RESET,
-					TextFormat::GREEN."GREEN".TextFormat::RESET,
-					TextFormat::BLUE."BLUE".TextFormat::RESET,
-					TextFormat::YELLOW."YELLOW".TextFormat::RESET,
+					"RED"=>TextFormat::RED."RED".TextFormat::RESET,
+					"GREEN"=>TextFormat::GREEN."GREEN".TextFormat::RESET,
+					"BLUE"=>TextFormat::BLUE."BLUE".TextFormat::RESET,
+					"YELLOW"=>TextFormat::YELLOW."YELLOW".TextFormat::RESET,
 					),
 				"denyCommands"=>array(
 					"op",
@@ -121,10 +126,13 @@ class PluginMain extends PluginBase implements Listener{
 				"style"=>array(
 					"impl"=>"nao20010128nao\\pvp\\impl\\CoreAttack",
 					"options"=>array(
+						"teamCore"=>array(
 							"RED"=>array("x"=>0,"y"=>0,"z"=>0),
 							"GREEN"=>array("x"=>0,"y"=>0,"z"=>0),
 							"BLUE"=>array("x"=>0,"y"=>0,"z"=>0),
 							"YELLOW"=>array("x"=>0,"y"=>0,"z"=>0),
+							),
+						"coreDefaultHealth"=>200000,
 						),
 					),
 				"expCalc"=>array(
