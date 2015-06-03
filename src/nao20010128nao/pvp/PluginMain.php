@@ -82,6 +82,7 @@ class PluginMain extends PluginBase implements Listener{
 				"moneyAdd"=>100,
 				"expUnit"=>"exp",
 				"expAdd"=>20,
+				"rouletteNeed"=>150,
 				"messages"=>array(
 					"turnedOnPvP"=>"You have turned on PvP mode!",
 					"reportTeam"=>"You are {team}!",
@@ -193,7 +194,7 @@ class PluginMain extends PluginBase implements Listener{
 		);
 		$commandMap->register(
 			"roulette", 
-			new RouletteCommand($this, "roulette", $this->system["messages"]["descRoulette"])
+			new RouletteCommand($this, "roulette", str_replace(array("{rouletteNeed}","{moneyUnit}"),array($this->system["rouletteNeed"],$this->system["moneyUnit"]),$this->system["messages"]["descRoulette"]))
 		);
 		$commandMap->register(
 			"stats", 
