@@ -30,6 +30,10 @@ use pocketmine\event\entity\EntityDamageByBlockEvent;
 use pocketmine\event\block\BlockPlaceEvent;
 use pocketmine\event\block\BlockBreakEvent;
 
+use nao20010128nao\pvp\command\PvpCommand;
+use nao20010128nao\pvp\command\RouletteCommand;
+use nao20010128nao\pvp\command\statsCommand;
+
 class PluginMain extends PluginBase implements Listener{
 	private $csender;
 	public $system;
@@ -100,6 +104,10 @@ class PluginMain extends PluginBase implements Listener{
 					"coreEliminated"=>"Your core has been eliminated!",
 					"coreEliminated2"=>"{team}'s core has been eliminated!",
 					"kickAll"=>"Kicking all players from the battle...",
+					"descPvp"=>"Turn on the PvP mode!",
+					"descRoulette"=>"Get a random item randomly for {rouletteNeed}{moneyUnit}!",
+					"descStats"=>"Show your stats!",
+					"inGameOnly"=>"Run this command in-game.",
 					),
 				"joinMessages"=>array(
 					"Welcome to the server!",
@@ -171,6 +179,19 @@ class PluginMain extends PluginBase implements Listener{
 		$this->csender->sendMessage(TextFormat::GREEN."Preparing some...");
 		$battleClass=$this->system["style"]["impl"];
 		$this->battleImpl=new $battleClass($this->system["style"]["options"],$this,$this->server);
+		$commandMap = $this->getServer()->getCommandMap();
+		$commandMap->register(
+			"pvp", 
+			new PvpCommand($this, "pvp", $this->system["messages"]["descPvp"])
+		);
+		$commandMap->register(
+			"roulette", 
+			new RouletteCommand($this, "roulette", $this->system["messages"]["descRoulette"])
+		);
+		$commandMap->register(
+			"stats", 
+			new StatsCommand($this, "stats", $this->system["messages"]["descStats"])
+		);
 		$this->csender->sendMessage(TextFormat::GREEN."Done! Continuing enabling next plugins...");
 	}
 	
