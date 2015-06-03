@@ -15,6 +15,7 @@ class RouletteCommand extends CommandBase{
 	{
 		if(!($sender instanceof Player)){
 			$sender->sendMessage($this->plugin->system["messages"]["inGame"]);
+			return false;
 		}
 		
 		return true;

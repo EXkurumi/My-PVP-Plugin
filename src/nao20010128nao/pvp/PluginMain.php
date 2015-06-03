@@ -108,6 +108,13 @@ class PluginMain extends PluginBase implements Listener{
 					"descRoulette"=>"Get a random item randomly for {rouletteNeed}{moneyUnit}!",
 					"descStats"=>"Show your stats!",
 					"inGameOnly"=>"Run this command in-game.",
+					"statsSplit"=>TextFormat::GREEN."==========================",
+					"statsStyle"=>TextFormat::YELLOW."{title}".TextFormat::RESET.":".TextFormat::AQUA."{value}",
+					"kills" =>"     Kills",
+					"deaths"=>"    Deaths",
+					"money"=> "     Money",
+					"level"=> "     Level",
+					"exp"=>   "Experiment",
 					),
 				"joinMessages"=>array(
 					"Welcome to the server!",
