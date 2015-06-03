@@ -30,12 +30,12 @@ use pocketmine\event\block\BlockBreakEvent;
 
 class PluginMain extends PluginBase implements Listener{
 	private $csender;
-	private $system;
-	private $cheaters;
-	private $money;
-	private $teamInfo;
+	public $system;
+	public $cheaters;
+	public $money;
+	public $teamInfo;
 	private $judge;
-	private $stats;
+	public $stats;
 	private $chatTime;
 	public function onEnable(){
 		$this->csender=new ConsoleCommandSender();
@@ -90,6 +90,8 @@ class PluginMain extends PluginBase implements Listener{
 					"notInTeam"=>"You are not in the team! Turn on the PvP mode, and join the team!",
 					"targetNotInTeam"=>"The target is not in the team! Your attack was cancelled.",
 					"teamFire"=>"Team Fire is now allowed! Don't worry, this damage was cancelled, and not counted as a spam!",
+					"gotExp"=>"You got {exp} exp!",
+					"levUp"=>"Your level is now {level}!",
 					),
 				"joinMessages"=>array(
 					"Welcome to the server!",
@@ -263,22 +265,6 @@ class PluginMain extends PluginBase implements Listener{
 		$username = $player->getName();
 		$event->setKeepInventory(true);
 		
-	}
-	public function onPlayerDeath2(EntityDeathEvent $event){
-		$entity = $event->getEntity();
-        $cause = $entity->getLastDamageCause();
-        $killer = $cause->getDamager();
-        if($killer instanceof Player){
-            $killer->sendMessage(str_replace(array("{player}"),array($entity->getName()),$this->system["messages"]["whenKill"]));
-			$entity->sendMessage(str_replace(array("{killer}"),array($killer->getName()),$this->system["messages"]["whenDeath"]));
-			$this->prepareStat($entity->getName());
-			$this->prepareStat($killer->getName());
-			$username=mb_strtolower($entity->getName());
-			$entity->stats[$username]["death"]=$this->stats[$username]["death"]+1;
-			$username=mb_strtolower($killer->getName());
-			$entity->stats[$username]["kill"]=$this->stats[$username]["kill"]+1;
-			$entity->stats[$username]["money"]=$this->stats[$username]["money"]+$this->system["moneyAdd"];
-        }
 	}
 	public function onPlayerDamageBlock(EntityDamageByBlockEvent $event){
 		$event->setCancelled(true);
