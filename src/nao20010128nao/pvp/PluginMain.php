@@ -109,6 +109,8 @@ class PluginMain extends PluginBase implements Listener{
 					"descRoulette"=>"Get a random item randomly for {rouletteNeed}{moneyUnit}!",
 					"descStats"=>"Show your stats!",
 					"inGameOnly"=>"Run this command in-game.",
+					"moneyNotEnough"=>"Your money is not enough!",
+					"rouletteHit"=>"Check your inventory!",
 					"statsSplit"=>TextFormat::GREEN."==========================",
 					"statsStyle"=>TextFormat::YELLOW."{title}".TextFormat::RESET.":".TextFormat::AQUA."{value}",
 					"kills" =>"     Kills",
@@ -380,6 +382,9 @@ class PluginMain extends PluginBase implements Listener{
 				"level"=>0,
 				"exp"=>0,
 				)));
+		}
+		if(!array_key_exists($this->money,mb_strtolower($name))){
+			$this->money=array_merge($this->money,array(mb_strtolower($name)=>0));
 		}
 	}
 	private function selectTeam(){
