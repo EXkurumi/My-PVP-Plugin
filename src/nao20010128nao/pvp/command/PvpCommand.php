@@ -1,4 +1,5 @@
 <?php
+namespace nao20010128nao\pvp\impl;
 
 use pocketmine\plugin\PluginBase;
 

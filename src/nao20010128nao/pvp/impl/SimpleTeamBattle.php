@@ -1,4 +1,6 @@
 <?php
+namespace nao20010128nao\pvp\impl;
+
 use pocketmine\Server;
 
 use pocketmine\event\Listener;

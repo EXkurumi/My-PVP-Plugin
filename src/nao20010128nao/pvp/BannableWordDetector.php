@@ -1,4 +1,5 @@
 <?php
+namespace nao20010128nao\pvp;
 
 class BannableWordDetector{
 	private $list=array(
