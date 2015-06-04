@@ -48,7 +48,7 @@ class PluginMain extends PluginBase implements Listener{
 		$this->csender=new ConsoleCommandSender();
 		$this->csender->sendMessage(TextFormat::GREEN."Loading...");
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
-		$this->judge=new BannableWordsDetector($this->getFile()."/resources/bannableWords");
+		$this->judge=new BannableWordDetector($this->getFile()."/resources/bannableWords");
 		$this->teamInfo=array();
 		$this->chatTime=array();
 		if(!file_exists($this->getDataFolder())){
@@ -161,9 +161,9 @@ class PluginMain extends PluginBase implements Listener{
 					"levelAdd"=>10,
 					),
 				);
-			yaml_emit_file($this->getDataFolder()."system.yml",$this->system);
+			yaml_emit_file($this->getDataFolder()."system.yml",$temp);
 			$this->csender->sendMessage(TextFormat::RED."Starting stopping...");
-			$this->getServer()->stop();
+			$this->getServer()->shutdown();
 			return;
 		}else{
 			$this->system=yaml_parse_file($this->getDataFolder()."system.yml");

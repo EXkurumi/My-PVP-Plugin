@@ -7,10 +7,10 @@ class BannableWordDetector{
 		"end"=>array(),
 		"contain"=>array(),
 		);
-	public __construct($path){
+	public function __construct($path){
 		$this->appendData($path);
 	}
-	public appendData($str,$isFile=true){
+	public function appendData($str,$isFile=true){
 		$lines;
 		if($isFile){
 			$lines=file($str);
@@ -22,6 +22,7 @@ class BannableWordDetector{
 		}
 		foreach($lines as $line){
 			$line=rtrim($line,"\t\n\r\0\x0B");
+			if($line=="")continue;
 			switch($line[0]){
 			case "/":
 				$a=$this->list["start"];
