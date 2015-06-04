@@ -226,6 +226,7 @@ class PluginMain extends PluginBase implements Listener{
 	}
 	public function onPlayerJoin(PlayerJoinEvent $event){
 		$send=$event->getPlayer();
+		$send->teleport($player->getSpawn());
 		foreach($this->system["joinMessages"] as $mes){
 			$send->sendMessage($mes);
 		}
