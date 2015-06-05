@@ -225,7 +225,7 @@ class PluginMain extends PluginBase implements Listener{
 	}
 	public function onPlayerJoin(PlayerJoinEvent $event){
 		$send=$event->getPlayer();
-		$send->teleport($player->getSpawn());
+		$send->teleport($send->getSpawn());
 		foreach($this->system["joinMessages"] as $mes){
 			$send->sendMessage($mes);
 		}
@@ -250,7 +250,7 @@ class PluginMain extends PluginBase implements Listener{
 		if($this->system["antiCheat"]){
 			if($this->judge->test($event->getMessage())){
 				$event->setCancelled(true);
-				if(!array_key_exists($this->cheaters,mb_strtolower($username))){
+				if(!array_key_exists(mb_strtolower($username),$this->cheaters)){
 					$this->cheaters=array_merge($this->cheaters,array(mb_strtolower($username)=>0));
 				}
 				$this->cheaters[mb_strtolower($username)]=$this->cheaters[mb_strtolower($username)]+1;
@@ -274,7 +274,7 @@ class PluginMain extends PluginBase implements Listener{
 		}
 		if($this->system["blockFasterChat"]){
 			$time=microtime()/1000;
-			if(!array_key_exists($this->chatTime,mb_strtolower($username))){
+			if(!array_key_exists(mb_strtolower($username),$this->chatTime)){
 				$this->chatTime=array_merge($this->chatTime,array(mb_strtolower($username)=>$time));
 			}else{
 				$last=$this->chatTime[mb_strtolower($username)];
@@ -306,7 +306,7 @@ class PluginMain extends PluginBase implements Listener{
 		$teamInfo=array_diff_key($teamInfo,$username);
 	}
 	public function onPlayerDeath(PlayerDeathEvent $event){
-		$player = $event->getPlayer();
+		$player = $event->getEntity();
 		$username = $player->getName();
 		$event->setKeepInventory(true);
 		
@@ -396,7 +396,7 @@ class PluginMain extends PluginBase implements Listener{
 			$teamPlayersCount[$team]=$teamPlayersCount[$team]+1;
 		}
 		$miniestTeam=false;
-		$miniestTeamCount=count($this->server->getOnlinePlayers());
+		$miniestTeamCount=count($this->getServer()->getOnlinePlayers());
 		$noMemberTeam=array_combine($this->system["teamName"],$this->system["teamName"]);
 		foreach($teamPlayersCount as $team=>$count){
 			if($miniestTeamCount>=$count){
@@ -416,19 +416,19 @@ class PluginMain extends PluginBase implements Listener{
 			$player=$player->getName();
 		}
 		$player=mb_strtolower($player);
-		if(!array_key_exists($this->system["teamShowName"],$team)){
+		if(!array_key_exists($team,$this->system["teamName"])){
 			return false;
 		}
 		if(array_key_exists($this->teamInfo,$player)){
 			return false;
 		}
 		$this->teamInfo=array_merge($this->teamInfo,array($player=>$team));
-		$player=$this->server->getPlayer($player);
+		$player=$this->getServer()->getPlayer($player);
 		$tpTo=$this->system["pvpTeleportTo"][$team];
 		$player->teleport(new Vector3($tpTo["x"],$tpTo["y"],$tpTo["z"]));
 		return true;
 	}
-	private function turnOnPvP($player){
+	public function turnOnPvP($player){
 		return $this->joinTeam($player,$this->selectTeam());
 	}
 }

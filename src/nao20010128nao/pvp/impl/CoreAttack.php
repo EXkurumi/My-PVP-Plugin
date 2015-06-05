@@ -35,7 +35,7 @@ class CoreAttack implements Listener{
 	public function onPlayerInteract(PlayerInteractEvent $event){
 		$where=$event->getTouchVector();
 		$teamBelong=false;
-		foreach($option as $team=>$axis){
+		foreach($this->option["teamCore"] as $team=>$axis){
 			if(($axis["x"]==$where.getX()) and ($axis["y"]==$where.getY()) and ($axis["z"]==$where.getZ())){
 				$teamBelong=$team;
 			}

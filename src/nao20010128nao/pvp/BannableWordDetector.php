@@ -41,12 +41,12 @@ class BannableWordDetector{
 	}
 	public function test($str){
 		foreach($this->list["start"] as $bad){
-			if(startsWith($str,$bad)){
+			if($this->startsWith($str,$bad)){
 				return true;
 			}
 		}
 		foreach($this->list["end"] as $bad){
-			if(endsWith($str,$bad)){
+			if($this->endsWith($str,$bad)){
 				return true;
 			}
 		}
