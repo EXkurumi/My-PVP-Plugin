@@ -20,7 +20,7 @@ class CoreAttack implements Listener{
 	private $plugin;
 	private $server;
 	private $coreHealths;
-	public __construct(array $options,PluginMain $plugin,Server $server){
+	public function __construct(array $options,PluginMain $plugin,Server $server){
 		$this->option=$option;
 		$this->plugin=$plugin;
 		$this->server=$server;
