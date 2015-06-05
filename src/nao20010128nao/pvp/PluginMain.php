@@ -206,7 +206,6 @@ class PluginMain extends PluginBase implements Listener{
 	}
 	
 	public function onDisable(){
-		yaml_emit_file($this->getDataFolder()."system.yml",$this->system);
 		yaml_emit_file($this->getDataFolder()."cheaters.yml",$this->cheaters);
 		yaml_emit_file($this->getDataFolder()."money.yml",$this->money);
 		yaml_emit_file($this->getDataFolder()."stats.yml",$this->stats);
