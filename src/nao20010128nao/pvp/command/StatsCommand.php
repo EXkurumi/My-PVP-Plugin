@@ -1,11 +1,14 @@
 <?php
-namespace nao20010128nao\pvp\impl;
+namespace nao20010128nao\pvp\command;
 
-use pocketmine\plugin\PluginBase;
+use pocketmine\command\Command;
+use pocketmine\command\CommandSender;
 
 use pocketmine\Player;
 
-class StatsCommand extends CommandBase{
+use nao20010128nao\pvp\PluginMain;
+
+class StatsCommand extends Command{
 	public function __construct(PluginMain $plugin, $name, $description)
 	{
 		$this->plugin = $plugin;

@@ -15,20 +15,22 @@ use pocketmine\network\protocol\RespawnPacket;
 
 use pocketmine\network\Network; 
 
+use nao20010128nao\pvp\PluginMain;
+
 class CoreAttack implements Listener{
 	private $option;
 	private $plugin;
 	private $server;
 	private $coreHealths;
 	public function __construct(array $options,PluginMain $plugin,Server $server){
-		$this->option=$option;
+		$this->option=$options;
 		$this->plugin=$plugin;
 		$this->server=$server;
 		$this->coreHealths=array();
-		foreach($option as $key=>$value){
-			$this->coreHealths=array_merge($this->coreHealths,array($key=>$option["coreDefaultHealth"]));
+		foreach($options as $key=>$value){
+			$this->coreHealths=array_merge($this->coreHealths,array($key=>$options["coreDefaultHealth"]));
 		}
-		$server->getPluginManager()->registerEvents($server,$this);
+		$server->getPluginManager()->registerEvents($this,$plugin);
 	}
 	public function onPlayerInteract(PlayerInteractEvent $event){
 		$where=$event->getTouchVector();

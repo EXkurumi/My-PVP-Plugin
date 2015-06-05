@@ -188,7 +188,7 @@ class PluginMain extends PluginBase implements Listener{
 		}
 		$this->csender->sendMessage(TextFormat::GREEN."Preparing some...");
 		$battleClass=$this->system["style"]["impl"];
-		$this->battleImpl=new $battleClass($this->system["style"]["options"],$this,$this->server);
+		$this->battleImpl=new $battleClass($this->system["style"]["options"],$this,$this->getServer());
 		$commandMap = $this->getServer()->getCommandMap();
 		$commandMap->register(
 			"pvp", 

@@ -1,7 +1,8 @@
 <?php
-namespace nao20010128nao\pvp\impl;
+namespace nao20010128nao\pvp\command;
 
-use pocketmine\plugin\PluginBase;
+use pocketmine\command\Command;
+use pocketmine\command\CommandSender;
 
 use pocketmine\Player;
 
@@ -9,7 +10,9 @@ use pocketmine\utils\TextFormat;
 
 use pocketmine\item\Item;
 
-class RouletteCommand extends CommandBase{
+use nao20010128nao\pvp\PluginMain;
+
+class RouletteCommand extends Command{
 	private $canBeGiven=array(
 		256,257,258,
 		260,267,268,
