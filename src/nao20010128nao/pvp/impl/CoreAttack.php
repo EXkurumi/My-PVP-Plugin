@@ -47,7 +47,8 @@ class CoreAttack implements Listener{
 			return;
 		}
 		$player=$event->getPlayer();
-		if(!isset($teamPlayer=$this->plugin->teamInfo[mb_strtolower($player->getName())]))){
+		$teamPlayer=$this->plugin->teamInfo[mb_strtolower($player->getName())];
+		if(!isset($teamPlayer)){
 			$player->sendMessage($this->plugin->system["messages"]["notInTeam"]);
 			return;
 		}
