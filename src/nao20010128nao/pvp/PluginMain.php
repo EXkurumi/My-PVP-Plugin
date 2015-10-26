@@ -11,6 +11,7 @@ use pocketmine\command\PluginIdentifiableCommand;
 use pocketmine\Player;
 
 use pocketmine\math\Vector3;
+use pocketmine\level\Position;
 
 use pocketmine\utils\TextFormat;
 
@@ -283,7 +284,7 @@ class PluginMain extends PluginBase implements Listener{
 		$player = $event->getEntity();
 		$username = $player->getName();
 		$event->setKeepInventory(true);
-		$this->kickFromPvP($username);
+		$this->kickFromPvP($player);
 	}
 	public function onPlayerDamageBlock(EntityDamageByBlockEvent $event){
 		$event->setCancelled(true);
@@ -315,20 +316,24 @@ class PluginMain extends PluginBase implements Listener{
 		$this->stats[$player]["exp"]=$aht%$this->system["calcExp"]["baseValue"];
 	}
 	private function prepareStat($name){
-		if(!array_key_exists($this->stats,mb_strtolower($name))){
-			$this->stats=array_merge($this->stats,array(mb_strtolower($name)=>array(
+		$player=$this->getServer()->getPlayerExact($name);
+		if(!isset($this->stats[spl_object_hash($player)]){
+			$this->stats[spl_object_hash($player)]=array(
 				"death"=>0,
 				"kill"=>0,
 				"level"=>0,
 				"exp"=>0,
-				)));
+				);
 		}
-		if(!array_key_exists($this->money,mb_strtolower($name))){
-			$this->money=array_merge($this->money,array(mb_strtolower($name)=>0));
+		if(!isset($this->money[spl_object_hash($player)])){
+			$this->money[spl_object_hash($player)]=0;
 		}
+		
 	}
 	public function turnOnPvP($player){
 		$this->pvps[spl_obect_hash($player)]=$player;
+		$pos=new Position();
+		$player->teleportTo();
 	}
 	public function kickFromPvP($player){
 		unset($this->pvps[spl_obect_hash($player)]);
