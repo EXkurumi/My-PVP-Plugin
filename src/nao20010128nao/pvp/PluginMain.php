@@ -49,7 +49,7 @@ class PluginMain extends PluginBase implements Listener{
 		$this->csender->sendMessage(TextFormat::GREEN."Loading...");
 		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 		$this->judge=new BannableWordDetector($this->getFile()."/resources/bannableWords");
-		$this->teamInfo=array();
+		$this->pvps=array();
 		$this->chatTime=array();
 		if(!file_exists($this->getDataFolder())){
 			mkdir($this->getDataFolder(),755);
@@ -67,12 +67,7 @@ class PluginMain extends PluginBase implements Listener{
 					array("x"=>0,"y"=>0,"z"=>0),
 					array("x"=>0,"y"=>0,"z"=>0),
 					),
-				"pvpTeleportTo"=>array(
-					"RED"=>array("x"=>0,"y"=>0,"z"=>0),
-					"GREEN"=>array("x"=>0,"y"=>0,"z"=>0),
-					"BLUE"=>array("x"=>0,"y"=>0,"z"=>0),
-					"YELLOW"=>array("x"=>0,"y"=>0,"z"=>0),
-					),
+				"pvpTeleportTo"=>array("x"=>0,"y"=>0,"z"=>0),
 				"antiCheat"=>true,
 				"acceptCheatTime"=>3,//仏の顔も三度まで(The Buddha allows bad doing for third time.)
 				"disallowTeamFire"=>true,
@@ -85,7 +80,7 @@ class PluginMain extends PluginBase implements Listener{
 				"rouletteNeed"=>150,
 				"messages"=>array(
 					"turnedOnPvP"=>"You have turned on PvP mode!",
-					"reportTeam"=>"You are {team}!",
+					//"reportTeam"=>"You are {team}!",
 					"teleporting"=>"Teleporting...",
 					"fastChat"=>"Slow down, your chat is so fast!",
 					"cheat"=>"DO NOT USE CHEAT! YOU WILL BE BANNED IF YOU DO IT THREE TIMES!",
@@ -126,18 +121,6 @@ class PluginMain extends PluginBase implements Listener{
 					"This server can detect some cheatings,",
 					"so don't use cheat!",
 					),
-				"teamName"=>array(
-					"RED",
-					"GREEN",
-					"BLUE",
-					"YELLOW",
-					),
-				"teamShowName"=>array(
-					"RED"=>TextFormat::RED."RED".TextFormat::RESET,
-					"GREEN"=>TextFormat::GREEN."GREEN".TextFormat::RESET,
-					"BLUE"=>TextFormat::BLUE."BLUE".TextFormat::RESET,
-					"YELLOW"=>TextFormat::YELLOW."YELLOW".TextFormat::RESET,
-					),
 				"denyCommands"=>array(
 					"op",
 					"stop",
@@ -145,20 +128,11 @@ class PluginMain extends PluginBase implements Listener{
 					"whitelist",
 					),
 				"style"=>array(
-					"impl"=>"nao20010128nao\\pvp\\impl\\CoreAttack",
-					"options"=>array(
-						"teamCore"=>array(
-							"RED"=>array("x"=>0,"y"=>0,"z"=>0),
-							"GREEN"=>array("x"=>0,"y"=>0,"z"=>0),
-							"BLUE"=>array("x"=>0,"y"=>0,"z"=>0),
-							"YELLOW"=>array("x"=>0,"y"=>0,"z"=>0),
-							),
-						"coreDefaultHealth"=>200000,
-						),
+					"impl"=>"nao20010128nao\\pvp\\impl\\Default",
+					"options"=>array(),
 					),
 				"expCalc"=>array(
 					"baseValue"=>100,
-					"levelAdd"=>10,
 					),
 				);
 			yaml_emit_file($this->getDataFolder()."system.yml",$temp);
@@ -194,10 +168,10 @@ class PluginMain extends PluginBase implements Listener{
 			"pvp", 
 			new PvpCommand($this, "pvp", $this->system["messages"]["descPvp"])
 		);
-		$commandMap->register(
+		/*$commandMap->register(
 			"roulette", 
 			new RouletteCommand($this, "roulette", str_replace(array("{rouletteNeed}","{moneyUnit}"),array($this->system["rouletteNeed"],$this->system["moneyUnit"]),$this->system["messages"]["descRoulette"]))
-		);
+		);*/
 		$commandMap->register(
 			"stats", 
 			new StatsCommand($this, "stats", $this->system["messages"]["descStats"])
@@ -303,13 +277,13 @@ class PluginMain extends PluginBase implements Listener{
 		$player = $event->getPlayer();
 		$username = $player->getName();
 		//remove player info from teamInfo
-		$teamInfo=array_diff_key($teamInfo,$username);
+		$this->kickFromPvP($username);
 	}
 	public function onPlayerDeath(PlayerDeathEvent $event){
 		$player = $event->getEntity();
 		$username = $player->getName();
 		$event->setKeepInventory(true);
-		
+		$this->kickFromPvP($username);
 	}
 	public function onPlayerDamageBlock(EntityDamageByBlockEvent $event){
 		$event->setCancelled(true);
@@ -325,32 +299,6 @@ class PluginMain extends PluginBase implements Listener{
 		case EntityDamageEvent::CAUSE_ENTITY_EXPLOSION:
 			$event->setCancelled(true);
 			return;
-		default:
-			$dmg=$event->getDamager();
-			$ent=$event->getEntity();
-			if(!(($dmg instanceof Player)and($ent instanceof Player))){
-				return;
-			}
-			$dmgIntNam=mb_strtolower($dmg->getName());
-			$entIntNam=mb_strtolower($ent->getName());
-			//Is the damager in team?
-			if(!array_key_exists($this->teamInfo,$dmgIntNam)){
-				$dmg->sendMessage($this->system["messages"]["notInTeam"]);
-				$event->setCancelled(true);
-				return;
-			}
-			//Is the damaged in team?
-			if(!array_key_exists($this->teamInfo,$entIntNam)){
-				$dmg->sendMessage($this->system["messages"]["targetNotInTeam"]);
-				$event->setCancelled(true);
-				return;
-			}
-			//Did the damager team-fired?
-			if($this->teamInfo[$dmgIntNam]==$this->teamInfo[$entIntNam] and $this->system["disallowTeamFire"]){
-				$dmg->sendMessage($this->system["messages"]["teamFire"]);
-				$event->setCancelled(true);
-				return;
-			}
 		}
 	}
 	private function processGiveExp($player,$amount=-1){
@@ -359,20 +307,12 @@ class PluginMain extends PluginBase implements Listener{
 		}
 		$player=mb_strtolower($player);
 		$this->prepareStat($player);
-		$maxExp=$this->system["calcExp"]["baseValue"]+$this->system["calcExp"]["levelAdd"]*$this->stats[$player]["level"];
+		$maxExp=$this->system["calcExp"]["baseValue"];
 		$calcExp=$this->stats[$player]["exp"]+$amount;
-		if($maxExp>$calcExp){
-			$this->stats[$player]["exp"]=$calcExp;
-			return 0;
-		}elseif($maxExp==$calcExp){
-			$this->stats[$player]["level"]=$this->stats[$player]["level"]+1;
-			$this->stats[$player]["exp"]=0;
-			return 1;
-		}elseif($maxExp<=$calcExp){
-			$give=$maxExp-$calcExp;
-			$this->stats[$player]["level"]=$this->stats[$player]["level"]+1;
-			return $this->processGiveExp($player,$give)+1;
-		}
+		
+		$aht=$this->stats[$player]["exp"]+$amount;
+		$this->stats[$player]["level"]=$this->stats[$player]["level"]+floor($aht/$this->system["calcExp"]["baseValue"]);
+		$this->stats[$player]["exp"]=$aht%$this->system["calcExp"]["baseValue"];
 	}
 	private function prepareStat($name){
 		if(!array_key_exists($this->stats,mb_strtolower($name))){
@@ -387,48 +327,10 @@ class PluginMain extends PluginBase implements Listener{
 			$this->money=array_merge($this->money,array(mb_strtolower($name)=>0));
 		}
 	}
-	private function selectTeam(){
-		$teamPlayersCount=array();
-		foreach($this->teamInfo as $a=>$team){
-			if(!array_key_exists($teamPlayersCount,$team)){
-				$teamPlayersCount=array_merge($teamPlayersCount,array($team=>0));
-			}
-			$teamPlayersCount[$team]=$teamPlayersCount[$team]+1;
-		}
-		$miniestTeam=false;
-		$miniestTeamCount=count($this->getServer()->getOnlinePlayers());
-		$noMemberTeam=array_combine($this->system["teamName"],$this->system["teamName"]);
-		foreach($teamPlayersCount as $team=>$count){
-			if($miniestTeamCount>=$count){
-				$miniestTeamCount=$count;
-				$miniestTeam=$team;
-			}
-			$noMemberTeam=array_diff_key($noMemberTeam,array($team=>0));
-		}
-		$noMemberTeam=array_keys($noMemberTeam);
-		if(count($noMemberTeam)!=0){
-			$miniestTeam=$noMemberTeam[0];
-		}
-		return $miniestTeam;
-	}
-	private function joinTeam($player,$team){
-		if($player instanceof Player){
-			$player=$player->getName();
-		}
-		$player=mb_strtolower($player);
-		if(!array_key_exists($team,$this->system["teamName"])){
-			return false;
-		}
-		if(array_key_exists($this->teamInfo,$player)){
-			return false;
-		}
-		$this->teamInfo=array_merge($this->teamInfo,array($player=>$team));
-		$player=$this->getServer()->getPlayer($player);
-		$tpTo=$this->system["pvpTeleportTo"][$team];
-		$player->teleport(new Vector3($tpTo["x"],$tpTo["y"],$tpTo["z"]));
-		return true;
-	}
 	public function turnOnPvP($player){
-		return $this->joinTeam($player,$this->selectTeam());
+		$this->pvps[spl_obect_hash($player)]=$player;
+	}
+	public function kickFromPvP($player){
+		unset($this->pvps[spl_obect_hash($player)]);
 	}
 }
