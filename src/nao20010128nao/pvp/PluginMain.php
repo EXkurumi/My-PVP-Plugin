@@ -68,7 +68,7 @@ class PluginMain extends PluginBase implements Listener{
 					array("x"=>0,"y"=>0,"z"=>0),
 					array("x"=>0,"y"=>0,"z"=>0),
 					),
-				"pvpTeleportTo"=>array("x"=>0,"y"=>0,"z"=>0),
+				"pvpTeleportTo"=>array("x"=>0,"y"=>0,"z"=>0,"level"=>"world"),
 				"antiCheat"=>true,
 				"acceptCheatTime"=>3,//仏の顔も三度まで(The Buddha allows bad doing for third time.)
 				"disallowTeamFire"=>true,
@@ -129,7 +129,7 @@ class PluginMain extends PluginBase implements Listener{
 					"whitelist",
 					),
 				"style"=>array(
-					"impl"=>"nao20010128nao\\pvp\\impl\\Default",
+					"impl"=>"nao20010128nao\\pvp\\impl\\DefaultC",
 					"options"=>array(),
 					),
 				"expCalc"=>array(
@@ -286,7 +286,7 @@ class PluginMain extends PluginBase implements Listener{
 		$event->setKeepInventory(true);
 		$this->kickFromPvP($player);
 	}
-	public function onPlayerDamageBlock(EntityDamageByBlockEvent $event){
+	/*public function onPlayerDamageBlock(EntityDamageByBlockEvent $event){
 		$event->setCancelled(true);
 	}
 	public function onPlayerDamagePlayer(EntityDamageByEntityEvent $event){
@@ -301,7 +301,7 @@ class PluginMain extends PluginBase implements Listener{
 			$event->setCancelled(true);
 			return;
 		}
-	}
+	}*/
 	private function processGiveExp($player,$amount=-1){
 		if($amount<=0){
 			$amount=$this->system["expAdd"];
@@ -317,7 +317,7 @@ class PluginMain extends PluginBase implements Listener{
 	}
 	private function prepareStat($name){
 		$player=$this->getServer()->getPlayerExact($name);
-		if(!isset($this->stats[spl_object_hash($player)]){
+		if(!isset($this->stats[spl_object_hash($player)])){
 			$this->stats[spl_object_hash($player)]=array(
 				"death"=>0,
 				"kill"=>0,
@@ -328,14 +328,14 @@ class PluginMain extends PluginBase implements Listener{
 		if(!isset($this->money[spl_object_hash($player)])){
 			$this->money[spl_object_hash($player)]=0;
 		}
-		
 	}
 	public function turnOnPvP($player){
-		$this->pvps[spl_obect_hash($player)]=$player;
-		$pos=new Position();
-		$player->teleportTo();
+		$this->pvps[spl_object_hash($player)]=$player;
+		$pos=new Position($this->system["x"],$this->system["y"],$this->system["z"],$this->getServer()->getLevelByName($this->system["level"]));
+		$player->teleportTo($pos);
 	}
 	public function kickFromPvP($player){
-		unset($this->pvps[spl_obect_hash($player)]);
+		unset($this->pvps[spl_object_hash($player)]);
+		$send->teleport($send->getSpawn());
 	}
 }

@@ -24,7 +24,7 @@ class PvpCommand extends Command{
 		if($this->plugin->turnOnPvP($sender)){
 			$sender->sendMessage($this->plugin->system["messages"]["turnedOnPvP"]);
 			$sender->sendMessage($this->plugin->system["messages"]["teleporting"]);
-			$sender->sendMessage(str_replace("{team}",$this->plugin->system["teamShowName"][$this->plugin->teamInfo[mb_strtolower($sender->getName())]],$this->plugin->system["messages"]["reportTeam"]));
+			//$sender->sendMessage(str_replace("{team}",$this->plugin->system["teamShowName"][$this->plugin->teamInfo[mb_strtolower($sender->getName())]],$this->plugin->system["messages"]["reportTeam"]));
 		}else{
 			
 		}

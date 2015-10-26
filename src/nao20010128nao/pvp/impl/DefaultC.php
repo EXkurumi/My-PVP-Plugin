@@ -9,7 +9,7 @@ use pocketmine\event\entity\EntityDeathEvent;
 
 use nao20010128nao\pvp\PluginMain;
 
-class Default implements Listener{
+class DefaultC implements Listener{
 	private $option;
 	private $plugin;
 	private $server;
