@@ -278,7 +278,7 @@ class PluginMain extends PluginBase implements Listener{
 		$player = $event->getPlayer();
 		$username = $player->getName();
 		//remove player info from teamInfo
-		$this->kickFromPvP($username);
+		$this->kickFromPvP($player);
 	}
 	public function onPlayerDeath(PlayerDeathEvent $event){
 		$player = $event->getEntity();
@@ -317,25 +317,28 @@ class PluginMain extends PluginBase implements Listener{
 	}
 	private function prepareStat($name){
 		$player=$this->getServer()->getPlayerExact($name);
-		if(!isset($this->stats[spl_object_hash($player)])){
-			$this->stats[spl_object_hash($player)]=array(
+		if(!isset($this->stats[$this->getPlayerIdentifer($player)])){
+			$this->stats[$this->getPlayerIdentifer($player)]=array(
 				"death"=>0,
 				"kill"=>0,
 				"level"=>0,
 				"exp"=>0,
 				);
 		}
-		if(!isset($this->money[spl_object_hash($player)])){
-			$this->money[spl_object_hash($player)]=0;
+		if(!isset($this->money[$this->getPlayerIdentifer($player)])){
+			$this->money[$this->getPlayerIdentifer($player)]=0;
 		}
 	}
 	public function turnOnPvP($player){
-		$this->pvps[spl_object_hash($player)]=$player;
-		$pos=new Position($this->system["x"],$this->system["y"],$this->system["z"],$this->getServer()->getLevelByName($this->system["level"]));
-		$player->teleportTo($pos);
+		$this->pvps[$this->getPlayerIdentifer($player)]=$player;
+		$pos=new Position($this->system["pvpTeleportTo"]["x"],$this->system["pvpTeleportTo"]["y"],$this->system["pvpTeleportTo"]["z"],$this->getServer()->getLevelByName($this->system["pvpTeleportTo"]["level"]));
+		$player->teleport($pos);
 	}
 	public function kickFromPvP($player){
-		unset($this->pvps[spl_object_hash($player)]);
-		$send->teleport($send->getSpawn());
+		unset($this->pvps[$this->getPlayerIdentifer($player)]);
+		$player->teleport($player->getSpawn());
+	}
+	public function getPlayerIdentifer($player){
+		return mb_strtolower($player->getName());
 	}
 }
